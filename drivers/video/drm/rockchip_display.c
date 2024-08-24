@@ -1334,10 +1334,12 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	struct rockchip_logo_cache *logo_cache;
 	struct bmp_header *header;
 	void *dst = NULL, *pdst;
-	int size, len;
+	int size;
 	int ret = 0;
 	int reserved = 0;
 	int dst_size;
+        char cmd[256] = {0};
+	const char *bmp_logo = "/logo_file/logo.bmp";
 
 	if (!logo || !bmp_name)
 		return -EINVAL;
@@ -1354,11 +1356,17 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	if (!header)
 		return -ENOMEM;
 
-	len = rockchip_read_resource_file(header, bmp_name, 0, RK_BLK_SIZE);
-	if (len != RK_BLK_SIZE) {
-		ret = -EINVAL;
-		goto free_header;
-	}
+//	len = rockchip_read_resource_file(header, bmp_name, 0, RK_BLK_SIZE);
+//	if (len != RK_BLK_SIZE) {
+//		ret = -EINVAL;
+//		goto free_header;
+//	}
+        sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+     	if (run_command(cmd, 0)) {
+        	printf("failed to load bmp %s\n", bmp_name);
+        	ret = -ENOENT;
+        	goto free_header;
+   	 }
 
 	logo->bpp = get_unaligned_le16(&header->bit_count);
 	logo->width = get_unaligned_le32(&header->width);
@@ -1381,12 +1389,30 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 		dst = pdst;
 	}
 
+	 memset(pdst, 0, size);
+         sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)pdst, bmp_logo, size);
+        if (run_command(cmd, 0)) {
+            printf("failed to load bmp %s\n", bmp_name);
+            ret = -ENOENT;
+             goto free_header;
+        }
+
+/*
 	len = rockchip_read_resource_file(pdst, bmp_name, 0, size);
 	if (len != size) {
 		printf("failed to load bmp %s\n", bmp_name);
 		ret = -ENOENT;
 		goto free_header;
 	}
+*/ 
+
+    memset(pdst, 0, size);
+    sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)pdst, bmp_logo, size);
+    if (run_command(cmd, 0)) {
+       printf("failed to load bmp %s\n", bmp_name);
+       ret = -ENOENT;
+       goto free_header;
+    }
 
 	if (!can_direct_logo(logo->bpp)) {
 		/*
