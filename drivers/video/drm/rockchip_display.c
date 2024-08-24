@@ -1339,7 +1339,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	int reserved = 0;
 	int dst_size;
         char cmd[256] = {0};
-	const char *bmp_logo = "/logo_file/logo.bmp";
+	const char *bmp_logo = "/boot/boot.bmp";
 
 	if (!logo || !bmp_name)
 		return -EINVAL;
