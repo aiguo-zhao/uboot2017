@@ -181,8 +181,8 @@ static int display_text_info(void)
 static int announce_serial(void)
 {
 	if (gd && gd->serial.using_pre_serial)
-	__makuka();
-		//printf("PreSerial: %d, ", gd->serial.id);
+//	__makuka();
+                printf("PreSerial: %d, ", gd->serial.id);
 	else
 		printf("Serial: ");
 
