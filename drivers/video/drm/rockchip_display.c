@@ -1336,6 +1336,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	void *dst = NULL, *pdst;
 	int size;
 	int ret = 0;
+	int devnum=1;
 	int reserved = 0;
 	int dst_size;
         char cmd[256] = {0};
@@ -1361,7 +1362,12 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 //		ret = -EINVAL;
 //		goto free_header;
 //	}
+      devnum = env_get("devnum");  
+       if(devnum == 1){
         sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+       }else if(devnum==0){
+	       sprintf(cmd, "ext4load mmc 0:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+       }
      	if (run_command(cmd, 0)) {
         	printf("failed to load bmp %s\n", bmp_name);
         	ret = -ENOENT;
@@ -1407,7 +1413,13 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 */ 
 
     memset(pdst, 0, size);
-    sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)pdst, bmp_logo, size);
+  /*  sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)pdst, bmp_logo, size);*/
+    if(devnum == 1){
+        sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+       }else if(devnum==0){
+               sprintf(cmd, "ext4load mmc 0:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+       }
+
     if (run_command(cmd, 0)) {
        printf("failed to load bmp %s\n", bmp_name);
        ret = -ENOENT;
