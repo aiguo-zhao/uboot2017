@@ -1343,7 +1343,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
         char cmd[256] = {0};
 	const char *bmp_logo = "/boot/boot.bmp";
         mmc_dev=env_get("devnum");
-	if(mmc_dev)
+//	if(mmc_dev)
 		printf("%s:mmc_dev=%s\r\n", __func__, mmc_dev);
 
 	if (!logo || !bmp_name)
