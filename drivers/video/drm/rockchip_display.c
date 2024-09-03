@@ -1395,20 +1395,6 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 		dst = pdst;
 	}
 
-	 memset(pdst, 0, size);
-//         sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)pdst, bmp_logo, size);
-       if(strcmp(devnum,"1")==0){
-           sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
-       }else if(strcmp(devnum,"0")==0){
-               sprintf(cmd, "ext4load mmc 0:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
-       }
-
-        if (run_command(cmd, 0)) {
-            printf("failed to load bmp %s\n", bmp_name);
-            ret = -ENOENT;
-             goto free_header;
-        }
-
 /*
 	len = rockchip_read_resource_file(pdst, bmp_name, 0, size);
 	if (len != size) {
@@ -1420,11 +1406,12 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 
     memset(pdst, 0, size);
   /*  sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)pdst, bmp_logo, size);*/
-    if(devnum == 1){
-        sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
-       }else if(devnum==0){
+     if(strcmp(devnum,"1")==0){
+               sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+       }else if(strcmp(devnum,"0")==0){
                sprintf(cmd, "ext4load mmc 0:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
        }
+
 
     if (run_command(cmd, 0)) {
        printf("failed to load bmp %s\n", bmp_name);
