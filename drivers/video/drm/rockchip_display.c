@@ -1341,7 +1341,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	char *mmc_dev;
 	int dev_num;
         char cmd[256] = {0};
-	const char *bmp_logo = "/boot/boot.bmp";
+	const char *bmp_logo = "/boot.bmp";
         mmc_dev=env_get("devnum");
 //	if(mmc_dev)
 		printf("%s:mmc_dev=%s\r\n", __func__, mmc_dev);
@@ -1369,9 +1369,9 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
       dev_num=(int)simple_strtol(mmc_dev, NULL, 10);
        printf("%s:dev_num:%d\r\n", __func__, dev_num);
        if(dev_num == 1){
-		sprintf(cmd, "ext4load mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+		sprintf(cmd, "fatload mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
 	}else {
-		sprintf(cmd, "ext4load mmc 0:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+		sprintf(cmd, "fatload mmc 0:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
 	}
 
      	if (run_command(cmd, 0)) {
