@@ -1346,7 +1346,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
   //      mmc_dev=env_get("devnum");
     logo_addr_r = env_get_ulong("logo_addr_r", 16, 0);
 //	if(mmc_dev)
-		printf("%s:mmc_dev=%s\r\n", __func__, mmc_dev);
+	//	printf("%s:mmc_dev=%s\r\n", __func__, mmc_dev);
 
 	if (!logo || !bmp_name)
 		return -EINVAL;
