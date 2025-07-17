@@ -1338,11 +1338,13 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	int ret = 0;
 	int reserved = 0;
 	int dst_size;
-	char *mmc_dev;
-	int dev_num;
-        char cmd[256] = {0};
-	const char *bmp_logo = "boot.bmp";
-        mmc_dev=env_get("devnum");
+	ulong logo_addr_r;
+//	char *mmc_dev;
+//	int dev_num
+      //  char cmd[256] = {0};
+//	const char *bmp_logo = "boot.bmp";
+  //      mmc_dev=env_get("devnum");
+    logo_addr_r = env_get_ulong("logo_addr_r", 16, 0);
 //	if(mmc_dev)
 		printf("%s:mmc_dev=%s\r\n", __func__, mmc_dev);
 
@@ -1357,28 +1359,36 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 		return 0;
 	}
 
-	header = malloc(RK_BLK_SIZE);
-	if (!header)
-		return -ENOMEM;
+//	header = malloc(RK_BLK_SIZE);
+//	if (!header)
+//		return -ENOMEM;
+	env_set("logo_file", bmp_name);
+	run_command(env_get("logocmd"), 0);
 
 //	len = rockchip_read_resource_file(header, bmp_name, 0, RK_BLK_SIZE);
 //	if (len != RK_BLK_SIZE) {
 //		ret = -EINVAL;
 //		goto free_header;
 //	}
-      dev_num=(int)simple_strtol(mmc_dev, NULL, 10);
-       printf("%s:dev_num:%d\r\n", __func__, dev_num);
-       if(dev_num == 1){
-		sprintf(cmd, "fatload mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
-	}else {
-		sprintf(cmd, "fatload mmc 0:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
-	}
-
+//      dev_num=(int)simple_strtol(mmc_dev, NULL, 10);
+  //     printf("%s:dev_num:%d\r\n", __func__, dev_num);
+   //    if(dev_num == 1){
+//		sprintf(cmd, "fatload mmc 1:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+//	}else {
+//		sprintf(cmd, "fatload mmc 0:1 %p %s %x 0", (char *)header, bmp_logo, RK_BLK_SIZE);
+//	}
+        header = (void *)logo_addr_r;
+/*
      	if (run_command(cmd, 0)) {
         	printf("failed to load bmp %s\n", bmp_name);
         	ret = -ENOENT;
         	goto free_header;
-   	 }
+   	 }*/
+	 if (header->signature[0] != 'B' || header->signature[1] != 'M') {
+                printf("!!!RK logo not valid bmp\n");
+                return 0;
+        };
+
 
 	logo->bpp = get_unaligned_le16(&header->bit_count);
 	logo->width = get_unaligned_le32(&header->width);
@@ -1389,12 +1399,13 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 	    logo->height = -logo->height;
 	size = get_unaligned_le32(&header->file_size);
 	if (!can_direct_logo(logo->bpp)) {
-		if (size > MEMORY_POOL_SIZE) {
+/*		if (size > MEMORY_POOL_SIZE) {
 			printf("failed to use boot buf as temp bmp buffer\n");
 			ret = -ENOMEM;
 			goto free_header;
 		}
-		pdst = get_display_buffer(size);
+		pdst = get_display_buffer(size);*/
+		pdst = (void *)logo_addr_r;
 
 	} else {
 		pdst = get_display_buffer(size);
@@ -1409,7 +1420,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 		goto free_header;
 	}
 */ 
-
+/*
     	memset(pdst, 0, size);
   	if(dev_num==1){
 		sprintf(cmd, "fatload mmc 1:1 %p %s %x 0", (char *)pdst, bmp_logo, size);
@@ -1422,7 +1433,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
        ret = -ENOENT;
        goto free_header;
     }
-
+*/
 	if (!can_direct_logo(logo->bpp)) {
 		/*
 		 * TODO: force use 16bpp if bpp less than 16;
@@ -1457,7 +1468,7 @@ static int load_bmp_logo(struct logo_info *logo, const char *bmp_name)
 
 free_header:
 
-	free(header);
+//	free(header);
 
 	return ret;
 #else
